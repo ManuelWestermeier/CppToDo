@@ -1,4 +1,3 @@
-#include <filesystem>
 #include <iostream>
 #include <string>
 #include <list>
@@ -37,7 +36,7 @@ class ToDoList {
 
 		list<ToDoItem> _ToDoList;
 		int itemCount = 0;
-		int version = 16;
+		int version = 17;
 
 	public:
 
@@ -157,6 +156,7 @@ class ToDoList {
 
 int main()
 {
+	system("title MW TODOO V17");
 	ToDoList _ToDoList;
 	while (true) {
 		_ToDoList.Update();

@@ -1,3 +1,2 @@
 ﻿  CppTodo.cpp
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.38.33130\include\filesystem(12): warning STL4038: The contents of <filesystem> are available only with C++17 or later.
   CppTodo.vcxproj -> C:\Users\Manuel Westermeier\source\repos\CppTodo\Debug\CppTodo.exe
