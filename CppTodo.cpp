@@ -3,9 +3,22 @@
 #include <list>
 #include <algorithm>
 #include <cstdlib>
-using namespace std;
+#include <fstream>
+#include <sstream>
+#include <vector>
 
 using namespace std;
+
+void writeFile(string fileName, string data) {
+
+	//open file
+	ofstream MyFile(fileName);
+	//write file
+	MyFile << data;
+	//close file
+	MyFile.close();
+
+}
 
 string readLine(string header) {
 	cout << "\n" << header;
@@ -36,26 +49,58 @@ class ToDoList {
 
 		list<ToDoItem> _ToDoList;
 		int itemCount = 0;
-		int version = 17;
+		string V = "29";
 
 	public:
 
 		void  Update() {
 
 			Render();
-			cout << " [q]uit\n [a]dd\n [c]omplete\n [d]elete\n [clear]\n";
 			string input = readLine(" write the first letter : ");
 
-			if (input == "a")
+			char inputFunction = tolower(input.at(0));
+
+			if (inputFunction == 'a')
 				Add();
-			else if (input == "c")
+			else if (inputFunction == 'c')
 				Complete();
-			else if (input == "d")
+			else if (inputFunction == 'd')
 				Delete();
-			else if (input == "q")
+			else if (inputFunction == 'q')
 				exit(0);
-			else if (input == "clear")
+			else if (inputFunction == 'r')
 				_ToDoList.clear();
+
+			Store();
+
+		}
+
+		void Store() {
+			
+			string out = "";
+			list<ToDoItem>::iterator it;
+			int i = 0;
+			bool isFirstTry = true;
+
+			for (it = _ToDoList.begin(); it != _ToDoList.end(); ++it) {
+
+				string chunk;
+				//check if it isnt the first item
+				if (isFirstTry) {
+					isFirstTry = false;
+				}
+				else chunk += '\n';
+				//Is Completed
+				chunk += (char)(int)it -> isCompleted;
+
+				//Content
+				chunk += it -> text;
+				//Add the relative string	
+				out += chunk;
+
+			}
+
+			writeFile(".tododata", out);
 
 		}
 
@@ -64,7 +109,7 @@ class ToDoList {
 			//clear
 			system("cls");
 
-			cout << " MW TODOO V" +	to_string(version) + "\n";
+			cout << " MW TODOO V" +	V + "\n";
 
 			cout << " --------------------------------------------\n";
 
@@ -87,6 +132,8 @@ class ToDoList {
 
 			cout << " --------------------------------------------\n";
 
+			cout << " [q]uit\n [a]dd\n [c]omplete\n [d]elete\n [r]emove all\n";
+
 		}
 
 		void Add() {
@@ -100,8 +147,6 @@ class ToDoList {
 
 			_ToDoList.push_back(item);
 
-			Store();
-
 		}
 
 		void Complete() {
@@ -112,19 +157,17 @@ class ToDoList {
 
 			for (auto _ToDoItem = _ToDoList.rbegin(); _ToDoItem != _ToDoList.rend(); _ToDoItem++) {
 
-				bool hasSameID = _ToDoItem->id == id;
+				bool hasSameID = _ToDoItem -> id == id;
 
 				if (hasSameID) {
 
-					_ToDoItem->toggleCompleted();
+					_ToDoItem -> toggleCompleted();
 
 					break;
 
 				}
 
 			}
-
-			Store();
 
 		}
 
@@ -144,21 +187,75 @@ class ToDoList {
 				}
 			}
 
-			Store();
+		} 
+
+		void start() {
+
+			//Set Title
+			string title = "title MW TODOO V" + V;
+			system(title.c_str());
+
+			ReadStorage();
 
 		}
 
-		void Store() {
-			//Build Later....
+		void ReadStorage() {
+
+			ifstream dataFile;
+
+			string dataLines[1000];
+
+			dataFile.open(".tododata");
+
+			if (dataFile.fail())
+				return;
+
+			int line = 0;
+
+			while (!dataFile.eof()) {
+
+				//read line
+				getline(dataFile, dataLines[line]);
+				line++;
+
+			}
+
+			dataFile.close();
+
+			//Loop For All Lines
+			for (int i = 0; i < line; i++)
+			{
+				string ToDoData = dataLines[i];
+				//Add To The Itemcout 1
+				itemCount++;
+				//Create The ToDoy
+				ToDoItem _ToDo;
+				//Add ID
+				_ToDo.id = itemCount;
+				//Add Complete
+				_ToDo.isCompleted = (bool)(int)ToDoData.at(0);
+				//Remove first character because it is the completed boolean
+				ToDoData.erase(0, 1);
+				//Add ToDo Text
+				_ToDo.text = ToDoData;
+				//Add the ToDo to the list
+				_ToDoList.push_back(_ToDo);
+
+			}
+
 		}
 
 };
 
 int main()
 {
-	system("title MW TODOO V17");
+	//Create The List
 	ToDoList _ToDoList;
+	//Start
+	_ToDoList.start();
+	//Update
 	while (true) {
 		_ToDoList.Update();
 	}
+
 }
