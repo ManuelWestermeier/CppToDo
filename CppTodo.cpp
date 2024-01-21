@@ -43,13 +43,23 @@ class ToDoItem {
 
 };
 
+int str2int(const string& str) {
+	stringstream ss(str);
+	int num;
+	if ((ss >> num).fail())
+	{
+		return 0;
+	}
+	return num;
+}
+
 class ToDoList {
 
 	private:
 
 		list<ToDoItem> _ToDoList;
 		int itemCount = 0;
-		string V = "29";
+		string V = " 1.0.31";
 
 	public:
 
@@ -106,17 +116,16 @@ class ToDoList {
 
 		void Render() {
 
-			//clear
-			system("cls");
+			string output = "";
 
-			cout << " MW TODOO V" +	V + "\n";
+			output += " MW TODOO V" +	V + "\n";
 
-			cout << " --------------------------------------------\n";
+			output += "--------------------------------------------\n";
 
 			for (const auto& _ToDoItem: _ToDoList)
 			{
 
-				cout << "  ------------------------------------------\n";
+				output += "  ------------------------------------------\n";
 
 				string itemString = "  " + to_string(_ToDoItem.id) + " | " + _ToDoItem.text + " | ";
 				
@@ -124,15 +133,21 @@ class ToDoList {
 					itemString += "completed";
 				else itemString += "isnt completed";
 
-				cout << (" " + itemString + "\n");
+				output += (" " + itemString + "\n");
 
-				cout << "  ------------------------------------------\n";
+				output += "  ------------------------------------------\n";
 
 			}
 
-			cout << " --------------------------------------------\n";
+			output += " --------------------------------------------\n";
 
-			cout << " [q]uit\n [a]dd\n [c]omplete\n [d]elete\n [r]emove all\n";
+			output += " [q]uit\n [a]dd\n [c]omplete\n [d]elete\n [r]emove all\n";
+
+
+			//clear
+			system("cls");
+			//Render
+			cout << output.c_str();
 
 		}
 
@@ -151,9 +166,9 @@ class ToDoList {
 
 		void Complete() {
 
-			int id;
-			cout << " The Complete ID : ";
-			cin >> id;
+			string idStr = readLine(" The Complete ID : ");
+
+			int id = str2int(idStr);
 
 			for (auto _ToDoItem = _ToDoList.rbegin(); _ToDoItem != _ToDoList.rend(); _ToDoItem++) {
 
@@ -173,9 +188,8 @@ class ToDoList {
 
 		void Delete() {
 
-			int id;
-			cout << " The Delete ID : ";
-			cin >> id;
+			string idStr = readLine(" The Delete ID : ");
+			int id = str2int(idStr);
 
 			auto it = _ToDoList.begin();
 			while (it != _ToDoList.end()) {
