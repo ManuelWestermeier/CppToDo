@@ -1,7 +1,8 @@
 #include <iostream>
 #include <string>
 #include <list>
-#include <algorithm>
+//#include <algorithm>
+#include <thread>
 #include <cstdlib>
 #include <fstream>
 #include <sstream>
@@ -53,13 +54,27 @@ int str2int(const string& str) {
 	return num;
 }
 
+string replace(string original, char find, string replacer) {
+
+	string new_str;
+
+	for (int i = 0; i < original.length(); i++) {
+		if (original.at(i) == find)
+			new_str += replacer;
+		else new_str += original[i];
+	}
+	
+	return new_str;
+
+}
+
 class ToDoList {
 
 	private:
 
 		list<ToDoItem> _ToDoList;
 		int itemCount = 0;
-		string V = " 1.0.31";
+		string V = " 1.0.45";
 
 	public:
 
@@ -67,6 +82,9 @@ class ToDoList {
 
 			Render();
 			string input = readLine(" write the first letter : ");
+
+			if (input.length() == 0)
+				input = "#";
 
 			char inputFunction = tolower(input.at(0));
 
@@ -80,13 +98,15 @@ class ToDoList {
 				exit(0);
 			else if (inputFunction == 'r')
 				_ToDoList.clear();
+			else if (inputFunction == 'h')
+				StoreAsHTML();
 
 			Store();
 
 		}
 
 		void Store() {
-			
+
 			string out = "";
 			list<ToDoItem>::iterator it;
 			int i = 0;
@@ -96,21 +116,66 @@ class ToDoList {
 
 				string chunk;
 				//check if it isnt the first item
-				if (isFirstTry) {
+				if (isFirstTry)
 					isFirstTry = false;
-				}
 				else chunk += '\n';
 				//Is Completed
-				chunk += (char)(int)it -> isCompleted;
+				chunk += (char)(int)it->isCompleted;
 
 				//Content
-				chunk += it -> text;
+				chunk += it->text;
 				//Add the relative string	
 				out += chunk;
 
 			}
 
 			writeFile(".tododata", out);
+
+			//system("attrib +h .tododata");
+
+		}
+
+		void StoreAsHTML() {
+
+			string out = "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF - 8\">  <style>* {margin: 5px;padding: 5px;font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;}</style><meta name=\"viewport\" content=\"width = device - width, initial - scale = 1.0\"><title>ToDos</title></head><body>";
+			
+			list<ToDoItem>::iterator it;
+			int i = 0;
+			bool isFirstTry = true;
+
+			for (it = _ToDoList.begin(); it != _ToDoList.end(); ++it) {
+
+				string chunk;
+				i++;
+
+				//Is Completed
+				if (it->isCompleted)
+					chunk += "complete ";
+				else chunk += "incomplete ";
+
+
+				//Content
+				chunk += replace(it -> text,'<', "< ");
+
+				//check if it isnt the first item
+				if (isFirstTry)
+					isFirstTry = false;
+				else chunk += "<br>";
+
+				//Add the relative string	
+				out += chunk;
+
+			}
+
+			out += "</body></html>";
+
+			writeFile("todoadata.html", out);
+
+			system("start todoadata.html");
+
+			this_thread::sleep_for(2s);
+
+			system("del \"./todoadata.html\"");
 
 		}
 
@@ -131,7 +196,7 @@ class ToDoList {
 				
 				if(_ToDoItem.isCompleted)
 					itemString += "completed";
-				else itemString += "isnt completed";
+				else itemString += "incomplete";
 
 				output += (" " + itemString + "\n");
 
@@ -141,7 +206,7 @@ class ToDoList {
 
 			output += " --------------------------------------------\n";
 
-			output += " [q]uit\n [a]dd\n [c]omplete\n [d]elete\n [r]emove all\n";
+			output += " [q]uit\n [a]dd\n [c]omplete\n [d]elete\n [r]emove all\n [h]store ss HTML\n";
 
 
 			//clear
@@ -268,8 +333,7 @@ int main()
 	//Start
 	_ToDoList.start();
 	//Update
-	while (true) {
+	while (true)
 		_ToDoList.Update();
-	}
 
 }
